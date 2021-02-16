@@ -1,313 +1,240 @@
-<!doctype html>
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8">
-	<title>Socket.IO Chat Example</title>
-	<link rel="stylesheet" href="/chat.css">
-  <script>
-		if ('{{username}}'===''){
-				window.location.assign('/auth?app=chat')
-			}
-	</script>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://unpkg.com/tailwindcss@^1.5/dist/base.min.css" />
+	<link rel="stylesheet" href="https://unpkg.com/tailwindcss@^1.5/dist/components.min.css" />
+	<link rel="stylesheet" href="https://unpkg.com/tailwindcss@^1.5/dist/utilities.min.css" />
+	<style>
+		[type='text'],
+		[type='email'],
+		[type='url'],
+		[type='password'],
+		[type='number'],
+		[type='date'],
+		[type='datetime-local'],
+		[type='month'],
+		[type='search'],
+		[type='tel'],
+		[type='time'],
+		[type='week'],
+		[multiple],
+		textarea,
+		select {
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			appearance: none;
+			background-color: #fff;
+			border-color: #6b7280;
+			border-width: 1px;
+			border-radius: 0px;
+			padding-top: 0.5rem;
+			padding-right: 0.75rem;
+			padding-bottom: 0.5rem;
+			padding-left: 0.75rem;
+			font-size: 1rem;
+			line-height: 1.5rem;
+		}
 
-  </script>
+		[type='text']:focus,
+		[type='email']:focus,
+		[type='url']:focus,
+		[type='password']:focus,
+		[type='number']:focus,
+		[type='date']:focus,
+		[type='datetime-local']:focus,
+		[type='month']:focus,
+		[type='search']:focus,
+		[type='tel']:focus,
+		[type='time']:focus,
+		[type='week']:focus,
+		[multiple]:focus,
+		textarea:focus,
+		select:focus {
+			outline: 2px solid transparent;
+			outline-offset: 2px;
+			--tw-ring-inset: var(--tw-empty,
+			/*!*/
+			/*!*/
+			);
+			--tw-ring-offset-width: 0px;
+			--tw-ring-offset-color: #fff;
+			--tw-ring-color: #2563eb;
+			--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+			--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+			box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+			border-color: #2563eb;
+		}
+
+		input::-moz-placeholder,
+		textarea::-moz-placeholder {
+			color: #6b7280;
+			opacity: 1;
+		}
+
+		input:-ms-input-placeholder,
+		textarea:-ms-input-placeholder {
+			color: #6b7280;
+			opacity: 1;
+		}
+
+		input::placeholder,
+		textarea::placeholder {
+			color: #6b7280;
+			opacity: 1;
+		}
+
+		::-webkit-datetime-edit-fields-wrapper {
+			padding: 0;
+		}
+
+		::-webkit-date-and-time-value {
+			min-height: 1.5em;
+		}
+
+		select {
+			background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+			background-position: right 0.5rem center;
+			background-repeat: no-repeat;
+			background-size: 1.5em 1.5em;
+			padding-right: 2.5rem;
+			-webkit-print-color-adjust: exact;
+			color-adjust: exact;
+		}
+
+		[multiple] {
+			background-image: initial;
+			background-position: initial;
+			background-repeat: unset;
+			background-size: initial;
+			padding-right: 0.75rem;
+			-webkit-print-color-adjust: unset;
+			color-adjust: unset;
+		}
+
+
+		[type='checkbox'],
+		[type='radio'] {
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			appearance: none;
+			padding: 0;
+			-webkit-print-color-adjust: exact;
+			color-adjust: exact;
+			display: inline-block;
+			vertical-align: middle;
+			background-origin: border-box;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+			flex-shrink: 0;
+			height: 1rem;
+			width: 1rem;
+			color: #2563eb;
+			background-color: #fff;
+			border-color: #6b7280;
+			border-width: 1px;
+		}
+
+		[type='checkbox'] {
+			border-radius: 0px;
+		}
+
+		[type='radio'] {
+			border-radius: 100%;
+		}
+
+
+		[type='checkbox']:focus,
+		[type='radio']:focus {
+			outline: 2px solid transparent;
+			outline-offset: 2px;
+			--tw-ring-inset: var(--tw-empty,
+			/*!*/
+			/*!*/
+			);
+			--tw-ring-offset-width: 2px;
+			--tw-ring-offset-color: #fff;
+			--tw-ring-color: #2563eb;
+			--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+			--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+			box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+			border-color: #6b7280;
+		}
+
+
+		[type='checkbox']:checked,
+		[type='radio']:checked {
+			border-color: transparent;
+			background-color: currentColor;
+			background-size: 100% 100%;
+			background-position: center;
+			background-repeat: no-repeat;
+		}
+
+		[type='checkbox']:checked {
+			background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+		}
+
+		[type='radio']:checked {
+			background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+		}
+
+
+		[type='checkbox']:checked:hover,
+		[type='checkbox']:checked:focus,
+		[type='radio']:checked:hover,
+		[type='radio']:checked:focus {
+			border-color: transparent;
+			background-color: currentColor;
+		}
+
+		[type='checkbox']:indeterminate {
+			background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3e%3cpath stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 8h8'/%3e%3c/svg%3e");
+			border-color: transparent;
+			background-color: currentColor;
+			background-size: 100% 100%;
+			background-position: center;
+			background-repeat: no-repeat;
+		}
+
+
+		[type='checkbox']:indeterminate:hover,
+		[type='checkbox']:indeterminate:focus {
+			border-color: transparent;
+			background-color: currentColor;
+		}
+
+		[type='file'] {
+			background: unset;
+			border-color: inherit;
+			border-width: 0;
+			border-radius: 0;
+			padding: 0;
+			font-size: unset;
+			line-height: inherit;
+		}
+
+		[type='file']:focus {
+			outline: 1px auto -webkit-focus-ring-color;
+		}
+	</style>
 </head>
 
-<body>
-	<ul class="pages">
-		<li class="chat page">
-			<div class="chatArea">
-				<ul class="messages"></ul>
+<body class="text-white bg-red-900 antialiased">
+	<nav class="sticky w-full top-0 overflow-x-auto bg-gradient-to-r from-red-900 via-gray-900 to-blue-900" id="top">
+		<div class="container mx-auto flex flex-wrap items-center">
+			<div class="flex w-full justify-center text-white font-light"><a href="/" class="text-white no-underline hover:text-white hover:no-underline font-light"><span class="text-2xl"><img src="//auth.wgyt.tk/logo.png" height="40" width="48" alt="Wgyt logo" class="h-10 pr-2 inline-block">Wgyt Social </a>Chat</span>
+				</div>
 			</div>
-			<input class="inputMessage" data-emoji-input="unicode" data-emojiable="true" placeholder="Type here..."/>
-    </li>
-    <li class="login page">
-      <div class="form">
-        <h3 class="title">press enter to continue</h3>
-				<input style="display:none" class="usernameInput" type="text" value="{{username}}" disabled>
-      </div>
-    </li>
-  </ul>
-  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script>$(function() {
-  const FADE_TIME = 150; // ms
-  const TYPING_TIMER_LENGTH = 400; // ms
-  const COLORS = [
-    '#e21400', '#91580f', '#f8a700', '#f78b00',
-    '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
-    '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
-  ];
-
-  // Initialize variables
-  const $window = $(window);
-  const $usernameInput = $('.usernameInput'); // Input for username
-  const $messages = $('.messages');           // Messages area
-  const $inputMessage = $('.inputMessage');   // Input message input box
-
-  const $loginPage = $('.login.page');        // The login page
-  const $chatPage = $('.chat.page');          // The chatroom page
-
-  const socket = io();
-
-  // Prompt for setting a username
-  let username;
-  let connected = false;
-  let typing = false;
-  let lastTypingTime;
-  let $currentInput = $usernameInput.focus();
-
-  const addParticipantsMessage = (data) => {
-    let message = '';
-    if (data.numUsers === 1) {
-      message += `there's 1 participant`;
-    } else {
-      message += `there are ${data.numUsers} participants`;
-    }
-    log(message);
-  }
-
-  // Sets the client's username
-  const setUsername = () => {
-    username = cleanInput($usernameInput.val().trim());
-
-    // If the username is valid
-    if (username) {
-      $loginPage.fadeOut();
-      $chatPage.show();
-      $loginPage.off('click');
-      $currentInput = $inputMessage.focus();
-
-      // Tell the server your username
-      socket.emit('add user', username);
-    }
-  }
-
-  // Sends a chat message
-  const sendMessage = () => {
-    let message = $inputMessage.val();
-    // Prevent markup from being injected into the message
-    message = cleanInput(message);
-    // if there is a non-empty message and a socket connection
-    if (message && connected) {
-      $inputMessage.val('');
-      addChatMessage({ username, message });
-      // tell server to execute 'new message' and send along one parameter
-      socket.emit('new message', message);
-    }
-  }
-
-  // Log a message
-  const log = (message, options) => {
-    const $el = $('<li>').addClass('log').text(message);
-    addMessageElement($el, options);
-  }
-
-  // Adds the visual chat message to the message list
-  const addChatMessage = (data, options) => {
-    // Don't fade the message in if there is an 'X was typing'
-    const $typingMessages = getTypingMessages(data);
-    if ($typingMessages.length !== 0) {
-      options.fade = false;
-      $typingMessages.remove();
-    }
-
-    const $usernameDiv = $('<span class="username"/>')
-      .text(data.username)
-      .css('color', getUsernameColor(data.username));
-    const $messageBodyDiv = $('<span class="messageBody">')
-      .text(data.message);
-
-    const typingClass = data.typing ? 'typing' : '';
-    const $messageDiv = $('<li class="message"/>')
-      .data('username', data.username)
-      .addClass(typingClass)
-      .append($usernameDiv, $messageBodyDiv);
-
-    addMessageElement($messageDiv, options);
-  }
-
-  // Adds the visual chat typing message
-  const addChatTyping = (data) => {
-    data.typing = true;
-    data.message = 'is typing';
-    addChatMessage(data);
-  }
-
-  // Removes the visual chat typing message
-  const removeChatTyping = (data) => {
-    getTypingMessages(data).fadeOut(function () {
-      $(this).remove();
-    });
-  }
-
-  // Adds a message element to the messages and scrolls to the bottom
-  // el - The element to add as a message
-  // options.fade - If the element should fade-in (default = true)
-  // options.prepend - If the element should prepend
-  //   all other messages (default = false)
-  const addMessageElement = (el, options) => {
-    const $el = $(el);
-    // Setup default options
-    if (!options) {
-      options = {};
-    }
-    if (typeof options.fade === 'undefined') {
-      options.fade = true;
-    }
-    if (typeof options.prepend === 'undefined') {
-      options.prepend = false;
-    }
-
-    // Apply options
-    if (options.fade) {
-      $el.hide().fadeIn(FADE_TIME);
-    }
-    if (options.prepend) {
-      $messages.prepend($el);
-    } else {
-      $messages.append($el);
-    }
-
-    $messages[0].scrollTop = $messages[0].scrollHeight;
-  }
-
-  // Prevents input from having injected markup
-  const cleanInput = (input) => {
-    return $('<div/>').text(input).html();
-  }
-
-  // Updates the typing event
-  const updateTyping = () => {
-    if (connected) {
-      if (!typing) {
-        typing = true;
-        socket.emit('typing');
-      }
-      lastTypingTime = (new Date()).getTime();
-
-      setTimeout(() => {
-        const typingTimer = (new Date()).getTime();
-        const timeDiff = typingTimer - lastTypingTime;
-        if (timeDiff >= TYPING_TIMER_LENGTH && typing) {
-          socket.emit('stop typing');
-          typing = false;
-        }
-      }, TYPING_TIMER_LENGTH);
-    }
-  }
-
-  // Gets the 'X is typing' messages of a user
-  const getTypingMessages = (data) => {
-    return $('.typing.message').filter(function (i) {
-      return $(this).data('username') === data.username;
-    });
-  }
-
-  // Gets the color of a username through our hash function
-  const getUsernameColor = (username) => {
-    // Compute hash code
-    let hash = 7;
-    for (let i = 0; i < username.length; i++) {
-      hash = username.charCodeAt(i) + (hash << 5) - hash;
-    }
-    // Calculate color
-    const index = Math.abs(hash % COLORS.length);
-    return COLORS[index];
-  }
-
-  // Keyboard events
-
-  $window.keydown(event => {
-    // Auto-focus the current input when a key is typed
-    if (!(event.ctrlKey || event.metaKey || event.altKey)) {
-      $currentInput.focus();
-    }
-    // When the client hits ENTER on their keyboard
-    if (event.which === 13) {
-      if (username) {
-        sendMessage();
-        socket.emit('stop typing');
-        typing = false;
-      } else {
-        setUsername();
-      }
-    }
-  });
-
-  $inputMessage.on('input', () => {
-    updateTyping();
-  });
-
-  // Click events
-
-  // Focus input when clicking anywhere on login page
-  $loginPage.click(() => {
-    $currentInput.focus();
-  });
-
-  // Focus input when clicking on the message input's border
-  $inputMessage.click(() => {
-    $inputMessage.focus();
-  });
-
-  // Socket events
-
-  // Whenever the server emits 'login', log the login message
-  socket.on('login', (data) => {
-    connected = true;
-    // Display the welcome message
-    const message = 'Welcome to Socket.IO Chat – ';
-    log(message, {
-      prepend: true
-    });
-    addParticipantsMessage(data);
-  });
-
-  // Whenever the server emits 'new message', update the chat body
-  socket.on('new message', (data) => {
-    addChatMessage(data);
-  });
-
-  // Whenever the server emits 'user joined', log it in the chat body
-  socket.on('user joined', (data) => {
-    log(`${data.username} joined`);
-    addParticipantsMessage(data);
-  });
-
-  // Whenever the server emits 'user left', log it in the chat body
-  socket.on('user left', (data) => {
-    log(`${data.username} left`);
-    addParticipantsMessage(data);
-    removeChatTyping(data);
-  });
-
-  // Whenever the server emits 'typing', show the typing message
-  socket.on('typing', (data) => {
-    addChatTyping(data);
-  });
-
-  // Whenever the server emits 'stop typing', kill the typing message
-  socket.on('stop typing', (data) => {
-    removeChatTyping(data);
-  });
-
-  socket.on('disconnect', () => {
-    log('you have been disconnected');
-  });
-
-  socket.on('reconnect', () => {
-    log('you have been reconnected');
-    if (username) {
-      socket.emit('add user', username);
-    }
-  });
-
-  socket.on('reconnect_error', () => {
-    log('attempt to reconnect has failed');
-  });
-
-});</script>
-</body>
+	</nav>
+	Something Here
+	<form action="/chat/post" target="_blank" class="grid grid-cols-10 gap-4 bg-black">
+		<input type="text" id="user" name="user" placeholder="type here" style="display:none;" value="{{username}}">
+		<input type="text" id="message" name="message" placeholder="type here" class="col-span-9">
+		<input type="submit" style="appearance: none;background-color: rgb(0 0 0);border-color: rgb(107 114 128);padding-top: 0.5rem;padding-right: 0.75rem;padding-bottom: 0.5rem;padding-left: 0.75rem;font-size: 1rem;line-height: 1.5rem;color:white" value=">">
+	</form>
+	</body>
 </html>

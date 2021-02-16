@@ -5,8 +5,6 @@
 ///////////////////////////////
 const express = require('express')
 const app = express()
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
 const mustacheExpress = require('mustache-express')
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
@@ -22,6 +20,8 @@ app.use('/comment', express.static(`${__dirname}/comment`))
 ///////////////////////////////
 const fs = require('fs-extra')
 fs.ensureDir(`${__dirname}/comment`)
+const Database = require("@replit/database")
+const db = new Database()
 /////////////////////////
 //                     //
 // main page of social //
@@ -55,6 +55,14 @@ app.get('/auth/callback', (req, res) => {
 		userroles: req.query.roles
 	})
 })
+app.get('/:app/auth/callback', (req, res) => {
+	res.render('all/appAuthCall', {
+		userid: req.query.id,
+		username: req.query.name,
+		userroles: req.query.roles,
+		app: req.params.app
+	})
+})
 /////////////////////////
 //                     //
 // comments embed code //
@@ -77,10 +85,11 @@ app.get('/comments/post/:url', (req, res) => {
 		url: req.params.url
 	})
 	if (req.cookies.name === undefined) {
-		console.log('error')
+		console.log('[comments]error, undefined user')
 	} else {
 		fs.ensureFile(`${__dirname}/comment/${req.params.url}.html`)
-		post = `<!doctype html><html lang="en"><head><style>::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{box-shadow:0 0 5px #000;border-radius:10px}::-webkit-scrollbar-thumb{background:white;border-radius:10px}::-webkit-scrollbar-thumb:hover{background:black}::-webkit-scrollbar-track-piece{background:#00000000}</style><!-- Required meta tags --><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><!-- Bootstrap CSS --><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"><title>Hello, world!</title></head><body class="bg-dark"><div class="card bg-secondary"><div class="card-header" style="color:white;">${req.cookies.name}</div><div class="card-body"style="color:white;"><p class="card-text">${req.query.post}</p></div></div> <!-- Option 1: Bootstrap Bundle with Popper --><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script></body></html>`
+		post = `<!doctype html><html lang="en"><head>	<link rel="stylesheet" href="https://unpkg.com/tailwindcss@^1.5/dist/base.min.css" /><link rel="stylesheet" href="https://unpkg.com/tailwindcss@^1.5/dist/components.min.css" /><link rel="stylesheet" href="https://unpkg.com/tailwindcss@^1.5/dist/utilities.min.css" /></head><body class="bg-dark"><div class="grid grid-cols-10 gap-4 bg-black"><div class="col-span-2 bg-red-900" style="color:white;">${req.cookies.name}</div><div class="col-span-8"style="color:white;">${req.query.post}</div></div></body></html>`
+
 		fs.appendFile(`${__dirname}/comment/${req.params.url}.html`, `${post}\r\n`, (err) => {
 			if (err) throw err
 			console.log('The data to append was appended to file!')
@@ -96,82 +105,49 @@ app.get('/comments/ensure/:url', (req, res) => {
 // chat website code //
 //                   //
 ///////////////////////
+function makeMessageId(){
+  return BigInt(new Date().valueOf()).toString(36)+"-"+BigInt(Math.floor(Math.random()*10000000000)).toString(36)
+}
+async function clearDatabase(){
+  return await Promise.all((await db.list("message-")).map(e=>db.delete(e))).then(() => {console.log("deleted sucessfully!")})
+} 
+
+async function getScrollbackTo(id){
+  console.log("test")
+  let list=await db.list("message-")
+  list=list.map(e=>[...e.slice("message-".length).split("-").map(e=>parseInt(e, 36)), e.slice("message-".length)]).map(([time, rand, id])=>({time, rand, id}))
+  list=list.sort((a,b)=>{
+    let result=a.time-b.time;
+    if(result==0){ // break the tie
+      result=a.rand-b.rand
+    }
+    return 0 - result // reverse sort order
+  })
+  let results=[]
+  for(let i=0;i<list.length;i++){
+    if(list[i].id==id){
+      return results
+    } else {
+      results.push(list[i])
+    }
+  }
+  let objects=await Promise.all(results.map(e=>"message-"+e.id));
+  console.log("test")
+}
+async function sendMessage(username,body){
+  let id=makeMessageId();
+
+  await db.set("message-"+id, {
+  "body": body,
+  "username": username
+	})
+};
+
 app.get('/chat', (req, res) => {
 	res.render('chat/chat', {
-		userid: req.cookies.id,
+		userid: req.cookies.id, // this uses wgytauth v0 if the user isnt logged in redirect to /auth?app=chat
 		username: req.cookies.name,
 		userroles: req.cookies.roles
-	})
-})
-app.get('/chat.js', (req, res) => {
-	res.sendFile(`${__dirname}/views/chat/chat.js`)
-})
-app.get('/chat.css', (req, res) => {
-	res.sendFile(`${__dirname}/views/chat/chat.css`)
-})
-let numUsers = 0;
-io.on('connection', (socket) => {
-	let addedUser = false;
-
-	// when the client emits 'new message', this listens and executes
-	socket.on('new message', (data) => {
-		// we tell the client to execute 'new message'
-		socket.broadcast.emit('new message', {
-			username: socket.username,
-			message: data
-		});
-	});
-
-	// when the client emits 'add user', this listens and executes
-	socket.on('add user', (username) => {
-		if (addedUser) return;
-
-		// we store the username in the socket session for this client
-		socket.username = username;
-		++numUsers;
-		addedUser = true;
-		socket.emit('login', {
-			numUsers: numUsers
-		});
-		// echo globally (all clients) that a person has connected
-		socket.broadcast.emit('user joined', {
-			username: socket.username,
-			numUsers: numUsers
-		});
-	});
-
-	// when the client emits 'typing', we broadcast it to others
-	socket.on('typing', () => {
-		socket.broadcast.emit('typing', {
-			username: socket.username
-		});
-	});
-
-	// when the client emits 'stop typing', we broadcast it to others
-	socket.on('stop typing', () => {
-		socket.broadcast.emit('stop typing', {
-			username: socket.username
-		});
-	});
-
-	// when the user disconnects.. perform this
-	socket.on('disconnect', () => {
-		if (addedUser) {
-			--numUsers;
-
-			// echo globally that this client has left
-			socket.broadcast.emit('user left', {
-				username: socket.username,
-				numUsers: numUsers
-			});
-		}
-	});
-});
-app.get('/chat/auth/callback', (req, res) => {
-	res.render('chat/chatAuthCall', {
-		userid: req.query.id,
-		username: req.query.name,
-		userroles: req.query.roles
 	})
 })
 ////////////////////////
@@ -180,14 +156,14 @@ app.get('/chat/auth/callback', (req, res) => {
 //                    //
 ////////////////////////
 app.get('/forum/', (req, res) => {
-	if (req.cookies.id === '') {
-		res.render('forum/forumLoggedIn', {
+	if (req.cookies.id === undefined) {
+		res.render('forum/forumLoggedOut', {
 			userid: req.cookies.id,
 			username: req.cookies.name,
 			userroles: req.cookies.roles
 		})
 	} else {
-		res.render('forum/forumLoggedOut', {
+		res.render('forum/forumLoggedIn', {
 			userid: req.cookies.id,
 			username: req.cookies.name,
 			userroles: req.cookies.roles
@@ -199,6 +175,6 @@ app.get('/forum/', (req, res) => {
 // listen on port 3000 //
 //                     //
 /////////////////////////
-http.listen(3000, () => {
-	console.log('listening on port 3000');
+app.listen(3000, () => {
+	console.clear();
 });

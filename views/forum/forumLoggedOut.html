@@ -223,15 +223,15 @@
 	</style>
 </head>
 
-<body class="bg-red-600 antialiased">
-	<form action="https://social.wgyt.tk/comments/post/{{url}}" target="_blank" class="grid grid-cols-10 gap-4 bg-black">
-		<input type="text" id="user" name="user" placeholder="type here" style="display:none;" value="{{username}}">
-		<input type="text" id="user" name="user" placeholder="type here" style="display:none;" value="{{userid}}">
-		<input type="text" id="user" name="user" placeholder="type here" style="display:none;" value="{{userroles}}">
-		<input type="text" id="user" name="user" placeholder="type here" style="display:none;" value="{{userroles}}">
-		<input type="text" id="post" name="post" placeholder="type here" class="col-span-9">
-		<input type="submit" style="appearance: none;background-color: rgb(0 0 0);border-color: rgb(107 114 128);padding-top: 0.5rem;padding-right: 0.75rem;padding-bottom: 0.5rem;padding-left: 0.75rem;font-size: 1rem;line-height: 1.5rem;color:white" value=">">
-	</form>	
-	<iframe src="https://social.wgyt.tk/comment/{{url}}.html" width="100%">
+<body class="text-white bg-red-900 antialiased">
+	<nav class="sticky w-full top-0 overflow-x-auto bg-gradient-to-r from-red-900 via-gray-900 to-blue-900" id="top">
+		<div class="container mx-auto flex flex-wrap items-center">
+			<div class="flex w-full justify-center text-white font-light"><a href="/" class="text-white no-underline hover:text-white hover:no-underline font-light"><span class="text-2xl"><img src="//auth.wgyt.tk/logo.png" height="40" width="48" alt="Wgyt logo" class="h-10 pr-2 inline-block">Wgyt Social </a>Forum</span>
+				</div>
+			</div>
+	</nav>
+	<div class="grid grid-cols-1 shadow-2xl">
+		<a href="/auth?app=forum"><div class="shadow-2xl h-32 w-30 font-light bg-blue-900 text-white rounded-md flex items-center justify-center">login</div></a>
+	</div>
 	</body>
 </html>
